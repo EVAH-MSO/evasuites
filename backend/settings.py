@@ -74,12 +74,18 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # ---------- Database (Cloud & Local Support) ----------
 # Reads DATABASE_URL from .env. If not found, falls back to local SQLite.
 DATABASES = {
-    'default': dj_database_url.config(
-        default=config('DATABASE_URL', default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}"),
-        conn_max_age=600,
-        conn_health_checks=True,
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
+
+# Safely check if DATABASE_URL exists and is formatted correctly
+DATABASE_URL = config('DATABASE_URL', default='').strip()
+if DATABASE_URL and '://' in DATABASE_URL:
+    DATABASES['default'] = dj_database_url.parse(
+        DATABASE_URL, conn_max_age=600, conn_health_checks=True
+    )
 
 # ---------- Custom User ----------
 AUTH_USER_MODEL = 'users.User'
