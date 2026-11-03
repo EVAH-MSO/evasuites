@@ -80,9 +80,9 @@ DATABASES = {
     }
 }
 
-# Safely check if DATABASE_URL exists and is formatted correctly
+# Safely check if DATABASE_URL is a real Postgres URL before parsing it
 DATABASE_URL = config('DATABASE_URL', default='').strip()
-if DATABASE_URL and '://' in DATABASE_URL:
+if DATABASE_URL.startswith('postgres://') or DATABASE_URL.startswith('postgresql://'):
     DATABASES['default'] = dj_database_url.parse(
         DATABASE_URL, conn_max_age=600, conn_health_checks=True
     )
