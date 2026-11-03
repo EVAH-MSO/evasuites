@@ -11,7 +11,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # ---------- Security ----------
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-fallback-key')
 DEBUG = config('DEBUG', default=True, cast=bool)
-ALLOWED_HOSTS = ['*']
+# Allowing all hosts for initial deployment (you can restrict this later)
+ALLOWED_HOSTS = ['*', '.onrender.com']
 
 # ---------- Apps ----------
 INSTALLED_APPS = [
@@ -40,6 +41,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware', # <--- FIXED: Added missing comma here!
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -92,13 +94,16 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # ---------- i18n ----------
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'Africa/Nairobi'  # Changed to Nairobi time for you!
+TIME_ZONE = 'Africa/Nairobi'
 USE_I18N = True
 USE_TZ = True
 
 # ---------- Static & Media ----------
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# WhiteNoise configuration for serving static files in production
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -127,7 +132,9 @@ SIMPLE_JWT = {
 }
 
 # ---------- CORS ----------
-# DEV SETTINGS: Allow all origins for local development
+# DEV SETTINGS: Allow all origins. 
+# (Once your Vercel frontend is live, change this to CORS_ALLOW_ALL_ORIGINS = False 
+# and add your Vercel URL to CORS_ALLOWED_ORIGINS below)
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = [
